@@ -7,6 +7,9 @@ import { Alert, Button, IconButton, InputAdornment, Link, Stack } from '@mui/mat
 import { RHFTextField } from '../../components/hook-form';
 import { Eye, EyeSlash } from 'phosphor-react';
 import { Link as RouterLink } from 'react-router-dom';
+import { loginUser } from '../../redux/slices/authSlice';
+import { dispatch } from '../../redux/store';
+
 
 const LoginForm = () => {
 
@@ -14,42 +17,69 @@ const LoginForm = () => {
 
   //validation rules 
   const loginSchema = Yup.object().shape({
-    email:Yup.string().required('Email is required').email('Email must be a valid email address'),
+    username:Yup.string().required('Username is required'),
     password:Yup.string().required('Password is required')
   });
 
-  const defaultValues = {
-    email:'dulanjali@gmail.com',
-    password:'dula@123'
-  };
-
   const methods = useForm({
-    resolver: yupResolver(loginSchema),
-    defaultValues
+    resolver: yupResolver(loginSchema)
   });
 
   const {reset, setError, handleSubmit, formState:{errors, isSubmitting, isSubmitSuccessful}}
    = methods;
 
-   const onSubmit = async (data) =>{
-        try {
-            //submit data to backend
-        } catch (error) {
-            console.log(error);
-            reset();
-            setError('afterSubmit',{
-                ...error,
-                message: error.message
-            })
+   const onSubmit = async (data) => {
+    try {
+        const response = await fetch('http://localhost:8080/v1/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+           
+        });
+
+        if (!response.ok) {
+            throw new Error('Login failed. Please check your credentials.');
         }
-   }
+
+        const { token } = await response.json();
+
+        // Store token in session storage
+        sessionStorage.setItem('token', token);
+
+        // Fetch user details
+        const userResponse = await fetch(`http://localhost:8080/v1/user/getUserDetailsByUsername/${data.username}`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            },
+        });
+
+        if (!userResponse.ok) {
+            throw new Error('Failed to fetch user details.');
+        }
+
+        const userData = await userResponse.json();
+
+        // Dispatch to Redux store
+        dispatch(loginUser(userData));
+
+    } catch (error) {
+        console.error(error);
+        reset();
+        setError('afterSubmit', {
+            type: 'server',
+            message: error.message,
+        });
+    }
+};
 
   return (
     <FormProvider methods={methods} onSubmit={handleSubmit(onSubmit)}>
         <Stack spacing={3}>
             {!!errors.afterSubmit && <Alert severity='error'>{errors.afterSubmit.message}</Alert>}
         
-        <RHFTextField name='email' label='Email address'/>
+        <RHFTextField name='username' label='Username'/>
         <RHFTextField name='password' label='Password' type={showPassword ? 'text' : 'password'}
         InputProps={{endAdornment:(
             <InputAdornment>
@@ -62,8 +92,8 @@ const LoginForm = () => {
         )}}/>
         </Stack>
         <Stack alignItems={'flex-end'} sx={{my:2}}>
-            <Link component={RouterLink} to='/auth/reset-password'
-             variant='body2' color='inherit' underline='always'>Forgot Password?</Link>
+            {/* <Link component={RouterLink} to='/auth/reset-password'
+             variant='body2' color='inherit' underline='always'>Forgot Password?</Link> */}
         </Stack>
         <Button fullWidth color='inherit' size='large' type='submit' variant='contained'
         sx={{bgcolor:'text.primary', color:(theme)=> theme.palette.mode === 'light' ?

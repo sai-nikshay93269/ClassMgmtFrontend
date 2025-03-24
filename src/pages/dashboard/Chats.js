@@ -56,7 +56,7 @@ const Chats = () => {
           
           <Stack spacing={2.4}>
             <Typography variant='subtitle2' sx={{color:"#676767"}}>
-              All Chats
+              All Classes
             </Typography>
             {ChatList.filter((el)=> !el.pinned).map((el)=>{
               return <ChatElement {...el}/>

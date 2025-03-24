@@ -4,7 +4,7 @@ import React from 'react';
 import { useTheme } from "@mui/material/styles";
 import { faker } from '@faker-js/faker';
 import StyledBadge from '../StyledBadge';
-import { ToggleSidebar } from '../../redux/slices/app';
+import { ToggleSidebar } from '../../redux/slices/appSlice';
 import { useDispatch } from 'react-redux';
 
 const Header = () => {

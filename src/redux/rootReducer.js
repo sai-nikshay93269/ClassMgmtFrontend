@@ -1,22 +1,25 @@
-//take all the slices that we are creating (combined all the reducers)
-import { combineReducers } from "redux"; 
-import storage from "redux-persist/lib/storage";
-import appReducer from './slices/app'
+import { combineReducers } from 'redux';
+import appReducer from './slices/appSlice';
+import authReducer from './slices/authSlice';
+// import classReducer from './slices/classSlice';
+// import projectReducer from './slices/projectSlice';
+// import chatReducer from './slices/chatSlice';
+// import notificationReducer from './slices/notificationSlice';
+// import evaluationReducer from './slices/evaluationSlice';
 
-//slices
-
-//create root configuration (how data store and how read out data from store)
-const rootPersistConfig = {
-    key:'root',
-    storage,
-    keyPrefix: 'redux-'
-    // whitelist:[],
-    // blacklist:[]
-}
-
-//create combine reducer
 const rootReducer = combineReducers({
     app: appReducer,
+    auth: authReducer,
 });
 
-export {rootPersistConfig, rootReducer}
+export {rootReducer};
+
+/**
+     
+    class: classReducer,
+    project: projectReducer,
+    chat: chatReducer,
+    notification: notificationReducer,
+    evaluation: evaluationReducer
+  
+ **/

@@ -8,6 +8,11 @@ import { faker } from '@faker-js/faker';
 import AntSwitch from '../../components/AntSwitch';
 import Logo from '../../assets/Images/logo.ico';
 import { useNavigate } from 'react-router-dom';
+import { dispatch } from '../../redux/store';
+import { logoutUser } from '../../redux/slices/authSlice';
+import { SetSelected } from '../../redux/slices/appSlice';
+import { useSelector } from '../../redux/store';
+
 
 const getPath = (index) =>{
   switch (index) {
@@ -46,12 +51,19 @@ const getMenuPath = (index) =>{
 }
 
 const SideBar = () => {
+  const selected = useSelector((state) => state.app.selected);
 
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
-  const handleClick = (event) => {
+  const handleClick = (event, title) => {
     setAnchorEl(event.currentTarget);
-    navigate();
+  
+    if (title === "Logout") {
+      dispatch(logoutUser()); // Dispatch logout action
+      navigate("/login"); // Redirect to login page after logout
+    } else {
+      navigate(getMenuPath(title)); // Navigate for other menu items
+    }
   };
   const handleClose = () => {
     setAnchorEl(null);
@@ -60,7 +72,6 @@ const SideBar = () => {
     const theme = useTheme();
     const navigate = useNavigate();
      // state for selected button
-    const [selected, setSelected] = useState(0); // by default 0 index button is selected
     //switch themes
     const {onToggleMode} = useSettings();
   return (
@@ -86,7 +97,7 @@ const SideBar = () => {
                   </IconButton>
                 </Box>
                 :
-                <IconButton onClick={() => { setSelected(el.index); navigate(getPath(el.index)) }} 
+                <IconButton onClick={() => { dispatch(SetSelected(el.index)); navigate(getPath(el.index)) }} 
                 sx={{ width: "max-content", color:theme.palette.mode === 'light' ? "#000" 
                 : theme.palette.text.primary }} key={el.index}>
                   {el.icon}
@@ -100,7 +111,7 @@ const SideBar = () => {
                 </IconButton>
               </Box>
               :
-              <IconButton onClick={() => { setSelected(3); navigate(getPath(3)) }} sx={{ width: "max-content",
+              <IconButton onClick={() => {dispatch(SetSelected(3));navigate(getPath(3)) }} sx={{ width: "max-content",
                color: theme.palette.mode === 'light' ? "#000" :theme.palette.text.primary }} >
                 <Gear />
               </IconButton>
@@ -133,7 +144,7 @@ const SideBar = () => {
             >
             <Stack spacing={1} px={1}>
               {Profile_Menu.map((el, idx)=>(
-                  <MenuItem onClick={ ()=> {handleClick(); } }>
+                  <MenuItem onClick={(event) => handleClick(event, el.title)}>
                     <Stack onClick={()=>{
                       navigate(getMenuPath(idx))
                     }} sx={{width:100}} direction='row' alignItems={'center'}

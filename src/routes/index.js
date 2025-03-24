@@ -24,6 +24,7 @@ export default function Router() {
       path: '/auth',
       element: <MainLayout/>,
       children:[
+        { index: true, element: <Navigate to="login" replace /> },
         {element: <LoginPage/>, path:'login'},
         {element: <RegisterPage/>, path:'register'},
         {element: <ResetPasswordPage/>, path:'reset-password'},

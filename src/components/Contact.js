@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import {useTheme } from "@mui/material/styles";
 import { Bell, CaretRight, Phone, Prohibit, Star, Trash, VideoCamera, X } from 'phosphor-react';
 import { useDispatch } from 'react-redux';
-import { ToggleSidebar, UpdateSidebarType } from '../redux/slices/app';
+import { ToggleSidebar, UpdateSidebarType } from '../redux/slices/appSlice';
 import { faker } from '@faker-js/faker';
 import AntSwitch from './AntSwitch';
 import '../css/global.css';
