@@ -6,7 +6,8 @@ const initialState = {
         open: false,
         type: 'CONTACT',
     },
-    selected: 0, // Added selected state
+    selected: 0, // Previously existing state for selected index
+    selectedClass: null, // New state property for selected class data
 };
 
 const appSlice = createSlice({
@@ -19,8 +20,11 @@ const appSlice = createSlice({
         updateSidebarType(state, action) {
             state.sidebar.type = action.payload;
         },
-        setSelected(state, action) {  // Added setSelected reducer
+        setSelected(state, action) {
             state.selected = action.payload;
+        },
+        setSelectedClass(state, action) { // New reducer to update selected class data
+            state.selectedClass = action.payload;
         }
     }
 });
@@ -34,14 +38,20 @@ export function ToggleSidebar() {
 
 export function UpdateSidebarType(type) {
     return async () => {
-        dispatch(appSlice.actions.updateSidebarType(type)); // Fixed payload structure
+        dispatch(appSlice.actions.updateSidebarType(type));
     };
 }
 
-export function SetSelected(value) {  // Added SetSelected thunk function
+export function SetSelected(value) {
     return async () => {
         dispatch(appSlice.actions.setSelected(value));
     };
 }
 
+export function SetSelectedClass(classData) { // New thunk function for updating selected class
+    return async () => {
+        dispatch(appSlice.actions.setSelectedClass(classData));
+    };
+}
+export const { setSelectedClass } = appSlice.actions; 
 export default appSlice.reducer;

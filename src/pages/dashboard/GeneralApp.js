@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { useDispatch } from '../../redux/store';
 import Chats from "./Chats";
 import { Box, Stack } from "@mui/material";
 import Conversation from "../../components/Conversation";
@@ -7,10 +8,17 @@ import Contact from "../../components/Contact";
 import { useSelector } from "react-redux";
 import SharedMessages from "../../components/SharedMessages";
 import StarredMessages from "../../components/StarredMessages";
+import { fetchClasses } from '../../redux/slices/classSlice';
 
 const GeneralApp = () => {
   const theme = useTheme();
   const {sidebar} = useSelector((store)=> store.app);// access our store inside component
+  const dispatch = useDispatch()
+
+  useEffect(() => {
+    dispatch(fetchClasses()).then((result) => console.log(result));
+  }, [dispatch]);
+  
   return (
     <Stack direction='row' sx={{ width: '100%' }}>
       {/* Chats */}

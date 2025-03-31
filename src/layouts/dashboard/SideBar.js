@@ -122,9 +122,9 @@ const SideBar = () => {
           </Stack>
           
           <Stack spacing={4}>
-            <AntSwitch onChange={()=>{
+            {/* <AntSwitch onChange={()=>{
                 onToggleMode();
-            }} defaultChecked/>
+            }} defaultChecked/> */}
             <Avatar id='basic-button' sx={{cursor:'pointer'}}
             src={faker.image.avatar()}
             aria-controls={open ? 'basic-menu' : undefined}

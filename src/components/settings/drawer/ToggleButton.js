@@ -45,25 +45,26 @@ ToggleButton.propTypes = {
 
 export default function ToggleButton({ notDefault, open, onToggle }) {
   return (
-    <RootStyle>
-      {notDefault && !open && <DotStyle />}
+    <></>
+    // <RootStyle>
+    //   {notDefault && !open && <DotStyle />}
 
-      <Tooltip title="Settings" placement="left">
-        <IconButtonAnimate
-          color="inherit"
-          onClick={onToggle}
-          sx={{
-            p: 1.25,
-            transition: (theme) => theme.transitions.create('all'),
-            '&:hover': {
-              color: 'primary.main',
-              bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
-            },
-          }}
-        >
-          <Iconify icon="eva:options-2-fill" width={20} height={20} />
-        </IconButtonAnimate>
-      </Tooltip>
-    </RootStyle>
+    //   <Tooltip title="Settings" placement="left">
+    //     <IconButtonAnimate
+    //       color="inherit"
+    //       onClick={onToggle}
+    //       sx={{
+    //         p: 1.25,
+    //         transition: (theme) => theme.transitions.create('all'),
+    //         '&:hover': {
+    //           color: 'primary.main',
+    //           bgcolor: (theme) => alpha(theme.palette.primary.main, theme.palette.action.hoverOpacity),
+    //         },
+    //       }}
+    //     >
+    //       <Iconify icon="eva:options-2-fill" width={20} height={20} />
+    //     </IconButtonAnimate>
+    //   </Tooltip>
+    // </RootStyle>
   );
 }

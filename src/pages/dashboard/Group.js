@@ -5,11 +5,12 @@ import { MagnifyingGlass, Plus } from 'phosphor-react';
 import { useTheme } from "@mui/material/styles";
 import { SimpleBarStyle } from '../../components/Scrollbar';
 import '../../css/global.css';
-import { ChatList } from '../../data';
+import { useChatList } from '../../data';
 import ChatElement from '../../components/ChatElement';
 import CreateGroup from '../../sections/main/CreateGroup';
 
 const Group = () => {
+    const ChatList = useChatList();
     const theme = useTheme();
     const [openDialog, setOpenDialog] = useState(false);
 

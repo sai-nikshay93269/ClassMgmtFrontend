@@ -103,7 +103,7 @@ export default function SettingsDrawer() {
 
       {!open && (
         <ToggleButton
-          open={open}
+          open={false}
           notDefault={notDefault}
           onToggle={handleToggle}
         />

@@ -1,10 +1,11 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { dispatch } from '../store';
+import axios from 'axios';
 
 const initialState = {
     user: null,
     isAuthenticated: false,
-    token: null,
+    token: sessionStorage.getItem('token') || null, // Get token from session
 };
 
 const authSlice = createSlice({
@@ -26,6 +27,33 @@ const authSlice = createSlice({
 });
 
 export default authSlice.reducer;
+
+// ✅ Service function to verify token
+export const verifyToken = () => async (dispatch, getState) => {
+    const token = sessionStorage.getItem('token');
+    const { user } = getState().auth;
+
+    if (!token) {
+        dispatch(authSlice.actions.logout()); // No token? Logout
+        return;
+    }
+
+    try {
+        const response = await axios.get(`http://localhost:8080/v1/user/getUserById/${user.id}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.status === 200) {
+            dispatch(authSlice.actions.setUser(response.data)); // ✅ Store user data
+        }
+    } catch (error) {
+        if (error.response && error.response.status === 401) {
+            dispatch(authSlice.actions.logout()); // 🚨 Unauthorized? Logout
+        } else {
+            console.error("Error fetching user:", error);
+        }
+    }
+};
 
 export function loginUser(user) {
     return async () => {

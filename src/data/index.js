@@ -1,4 +1,5 @@
 import { faker } from "@faker-js/faker";
+import { useSelector } from "react-redux";
 import {
   ChatCircleDots,
   Gear,
@@ -28,10 +29,6 @@ const Nav_Buttons = [
   {
     index: 0,
     icon: <ChatCircleDots />,
-  },
-  {
-    index: 1,
-    icon: <Users />,
   }
 ];
 
@@ -77,88 +74,20 @@ const MembersList = [
   }
 ];
 
-const ChatList = [
-  {
-    id: 0,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "9:36",
-    unread: 0,
-    pinned: true,
-    online: true,
-  },
-  {
-    id: 1,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "12:02",
-    unread: 2,
-    pinned: true,
-    online: false,
-  },
-  {
-    id: 2,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "10:35",
-    unread: 3,
-    pinned: false,
-    online: true,
-  },
-  {
-    id: 3,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "04:00",
-    unread: 0,
-    pinned: false,
-    online: true,
-  },
-  {
-    id: 4,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "08:42",
-    unread: 0,
-    pinned: false,
-    online: false,
-  },
-  {
-    id: 5,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "08:42",
-    unread: 0,
-    pinned: false,
-    online: false,
-  },
-  {
-    id: 6,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "08:42",
-    unread: 0,
-    pinned: false,
-    online: false,
-  },
-  {
-    id: 7,
-    img: faker.image.avatar(),
-    name: faker.name.firstName(),
-    msg: faker.music.songName(),
-    time: "08:42",
-    unread: 0,
-    pinned: false,
-    online: false,
-  },
-];
+const useChatList = () => {
+  const classes = useSelector((state) => state.class.classes);
+
+  return classes.map((classItem) => ({
+      id: classItem.id,
+      img: faker.image.avatar(), 
+      name: classItem.name, 
+      msg: classItem.description || "No description available",
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), 
+      unread: 0, 
+      pinned: false, 
+      online: false,
+  }));
+};
 
 const Chat_History = [
   {
@@ -235,9 +164,6 @@ const Message_options = [
     title: "Reply",
   },
   {
-    title: "Forward message",
-  },
-  {
     title: "Star message",
   },
   {
@@ -312,11 +238,144 @@ const SHARED_DOCS = [
  
 ]
 
+const ProjectsList = [
+  {
+    id: "proj-1",
+    classId: "101",
+    title: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    dueDate: faker.date.future(),
+  },
+  {
+    id: "proj-2",
+    classId: "101",
+    title: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    dueDate: faker.date.future(),
+  },
+  {
+    id: "proj-3",
+    classId: "101",
+    title: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    dueDate: faker.date.future(),
+  },
+  {
+    id: "proj-4",
+    classId: "101",
+    title: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    dueDate: faker.date.future(),
+  },
+  {
+    id: "proj-5",
+    classId: "101",
+    title: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    dueDate: faker.date.future(),
+  },
+  {
+    id: "3",
+    classId: "102",
+    title: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    dueDate: faker.date.future(),
+  },
+  {
+    id: "4",
+    classId: "103",
+    title: faker.commerce.productName(),
+    description: faker.commerce.productDescription(),
+    dueDate: faker.date.future(),
+  },
+];
+
+const SubProjectsList = [
+  {
+    id: "subproj-1",
+    projectId: "proj-1",
+    groupId: "group-1",
+    title: "Database Schema Design",
+    description: faker.commerce.productDescription(),
+    dueDate: "2025-04-10T23:59:00"
+  },
+  {
+    id: "subproj-2",
+    projectId: "proj-1",
+    groupId: "group-2",
+    title: "API Development",
+    description: faker.commerce.productDescription(),
+    dueDate: "2025-04-15T23:59:00"
+  },
+  {
+    id: "subproj-3",
+    projectId: "proj-1",
+    groupId: "group-2",
+    title: "API Development",
+    description: faker.commerce.productDescription(),
+    dueDate: "2025-04-15T23:59:00"
+  },
+  {
+    id: "subproj-4",
+    projectId: "proj-1",
+    groupId: "group-2",
+    title: "API Development",
+    description: faker.commerce.productDescription(),
+    dueDate: "2025-04-15T23:59:00"
+  },
+  {
+    id: "subproj-3",
+    projectId: "proj-2",
+    groupId: null,
+    title: "Frontend UI Implementation",
+    description: faker.commerce.productDescription(),
+    dueDate: "2025-04-12T23:59:00"
+  }
+];
+
+
+const TasksList = [
+  {
+    id: "task-1",
+    projectId: "proj-1",
+    subProjectId: "subproj-1",
+    assignedTo: "user-101",
+    title: "Create ER Diagram",
+    description: "Design the ER diagram for the project database",
+    status: "Pending",
+    dueDate: "2025-04-05T23:59:00"
+  },
+  {
+    id: "task-2",
+    projectId: "proj-1",
+    subProjectId: "subproj-2",
+    assignedTo: "user-102",
+    title: "Implement Authentication API",
+    description: "Develop authentication endpoints using Spring Security",
+    status: "In Progress",
+    dueDate: "2025-04-08T23:59:00"
+  },
+  {
+    id: "task-3",
+    projectId: "proj-2",
+    subProjectId: null,
+    assignedTo: "user-103",
+    title: "Design Login Page",
+    description: "Create a login page with React and Tailwind CSS",
+    status: "Completed",
+    dueDate: "2025-04-07T23:59:00"
+  }
+];
+
+
 export {
+  ProjectsList,
+  SubProjectsList,
+  TasksList,
   Profile_Menu,
   Nav_Setting,
   Nav_Buttons,
-  ChatList,
+  useChatList,
   Chat_History,
   Message_options,
   SHARED_DOCS,

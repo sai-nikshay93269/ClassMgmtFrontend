@@ -5,6 +5,7 @@ import { DocMsg, LinkMsg, MediaMsg, ReplyMsg, TextMsg, TimeLine } from './MsgTyp
 
 const Message = ({menu}) => {
   return (
+    
     <Box p={3}>
         <Stack spacing={3}>
             {Chat_History.map((el)=>{
