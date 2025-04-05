@@ -8,6 +8,7 @@ import {
   SignOut,
   User,
   Users,
+  Bell
 } from "phosphor-react";
 
 const Profile_Menu = [
@@ -29,7 +30,13 @@ const Nav_Buttons = [
   {
     index: 0,
     icon: <ChatCircleDots />,
+  },
+  {
+    index: 4,
+    title: "Notifications",
+    icon: <Bell size={20} />,
   }
+  
 ];
 
 const Nav_Setting = [
@@ -367,6 +374,17 @@ const TasksList = [
   }
 ];
 
+const NotificationsList = () => {
+  return Array.from({ length: 5 }).map((_, index) => ({
+    id: faker.datatype.uuid(),
+    userId: faker.datatype.uuid(),
+    classId: faker.datatype.uuid(),
+    message: faker.lorem.sentence(),
+    creationTimestamp: faker.date.recent(),
+    readStatus: Math.random() > 0.5 ? "READ" : "UNREAD", // Randomly mark as read/unread
+  }));
+};
+
 
 export {
   ProjectsList,
@@ -380,5 +398,6 @@ export {
   Message_options,
   SHARED_DOCS,
   SHARED_LINKS,
-  MembersList
+  MembersList,
+  NotificationsList
 };

@@ -27,7 +27,10 @@ const getPath = (index) =>{
 
     case 3:
       return '/settings'
-  
+
+    case 4:
+      return '/notifications'
+
     default:
       break;
   }
