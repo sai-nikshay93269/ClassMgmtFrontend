@@ -6,8 +6,9 @@ const initialState = {
         open: false,
         type: 'CONTACT',
     },
-    selected: 0, // Previously existing state for selected index
-    selectedClass: null, // New state property for selected class data
+    selected: 0,
+    selectedClass: null,
+    selectedGroup: null, // ✅ New: track selected group
 };
 
 const appSlice = createSlice({
@@ -23,13 +24,28 @@ const appSlice = createSlice({
         setSelected(state, action) {
             state.selected = action.payload;
         },
-        setSelectedClass(state, action) { // New reducer to update selected class data
+        setSelectedClass(state, action) {
             state.selectedClass = action.payload;
+            state.selectedGroup = null; // ✅ Reset group when class changes
+        },
+        setSelectedGroup(state, action) {
+            state.selectedGroup = action.payload;
+        },
+        clearSelectedGroup(state) {
+            state.selectedGroup = null;
+        },
+        UpdateSelectedClassMembers(state, action) {
+            const newMembers = action.payload;
+            if (!state.selectedClass) return;
+            state.selectedClass = {
+                ...state.selectedClass,
+                members: [...(state.selectedClass.members || []), ...newMembers],
+            };
         }
     }
 });
 
-// Thunk functions - perform async operations
+// Thunk functions
 export function ToggleSidebar() {
     return async () => {
         dispatch(appSlice.actions.toggleSidebar());
@@ -48,10 +64,38 @@ export function SetSelected(value) {
     };
 }
 
-export function SetSelectedClass(classData) { // New thunk function for updating selected class
+export function SetSelectedClass(classData) {
     return async () => {
         dispatch(appSlice.actions.setSelectedClass(classData));
+        dispatch(appSlice.actions.clearSelectedGroup());
     };
 }
-export const { setSelectedClass } = appSlice.actions; 
+
+export function SetSelectedGroup(groupData) {
+    return async () => {
+        dispatch(appSlice.actions.setSelectedGroup(groupData));
+    };
+}
+
+export function ClearSelectedGroup() {
+    return async () => {
+        dispatch(appSlice.actions.clearSelectedGroup());
+    };
+}
+export function UpdateSelectedClassMembers(membersData) {
+    return async () => {
+        dispatch(appSlice.actions.UpdateSelectedClassMembers(membersData));
+        console.log(membersData);
+    };
+}
+
+
+
+
+export const {
+    setSelectedClass,
+    setSelectedGroup,
+    clearSelectedGroup,
+} = appSlice.actions;
+
 export default appSlice.reducer;

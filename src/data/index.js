@@ -88,11 +88,12 @@ const useChatList = () => {
       id: classItem.id,
       img: faker.image.avatar(), 
       name: classItem.name, 
-      msg: classItem.description || "No description available",
+      description: classItem.description || "No description available",
       time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }), 
       unread: 0, 
       pinned: false, 
       online: false,
+      members: classItem.members || [], 
   }));
 };
 

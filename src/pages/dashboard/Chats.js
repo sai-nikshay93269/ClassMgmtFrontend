@@ -10,6 +10,7 @@ import { Search, SearchIconWrapper, StyledInputBase } from '../../components/Sea
 import ChatElement from '../../components/ChatElement';
 import CreateClassDialog from './CreateClassDialog';
 import { SetSelectedClass } from '../../redux/slices/appSlice';
+import { fetchGroups } from "../../redux/slices/classSlice";
 
 const Chats = () => {
   const dispatch = useDispatch();
@@ -21,8 +22,10 @@ const Chats = () => {
     setOpenDialog(false);
   }
   const handleSelectClass = (classData) => {
-    dispatch(SetSelectedClass(classData)); // Dispatch selected class data
-};
+      dispatch(SetSelectedClass(classData));
+      dispatch(fetchGroups()); // Always fetch when class is clicked
+  };
+
 
   return (
     <Box sx={{

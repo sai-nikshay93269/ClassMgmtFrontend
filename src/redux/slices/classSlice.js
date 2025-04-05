@@ -1,5 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { setSelectedClass } from "./appSlice";
+import { setSelectedClass,UpdateSelectedClassMembers } from "./appSlice";
+import { dispatch } from '../store';
+
 // ✅ Async thunk to fetch classes
 export const fetchClasses = createAsyncThunk(
     'class/fetchClasses',
@@ -106,7 +108,7 @@ export const createGroup = createAsyncThunk(
             });
 
             const responseData = await response.json();
-
+            console.log(responseData)
             if (!response.ok) {
                 return rejectWithValue(responseData.error || "Failed to create group");
             }
@@ -161,6 +163,38 @@ export const fetchGroups = createAsyncThunk(
     }
 );
 
+// Add Class Members Thunk
+export const addClassMembers = createAsyncThunk(
+    'class/addClassMembers',
+    async ({ classId, studentIds }, { getState, rejectWithValue }) => {
+      try {
+        const { auth } = getState();
+        const token = auth.token;
+  
+        const response = await fetch(`http://localhost:8080/v1/classes-service/classes/${classId}/members`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ studentIds })
+        });
+  
+        const responseData = await response.json();
+  
+        if (!response.ok) {
+          return rejectWithValue(responseData.error || 'Failed to add members');
+        }
+        dispatch(UpdateSelectedClassMembers(responseData));
+  
+        return { classId, members: responseData }; // assuming responseData is the list of added members
+      } catch (error) {
+        return rejectWithValue(error.message);
+      }
+    }
+  );
+             
+
 // ✅ Create slice with `extraReducers` for async handling
 const classSlice = createSlice({
     name: 'class',
@@ -182,9 +216,9 @@ const classSlice = createSlice({
                 state.loading = false;
 
                 // ✅ Preserve existing groups and update classes only
-                const existingGroups = { ...state.groups };
+                //const existingGroups = { ...state.groups };
                 state.classes = action.payload;
-                state.groups = existingGroups;
+                //state.groups = existingGroups;
             })
             .addCase(fetchClasses.rejected, (state, action) => {
                 state.loading = false;
@@ -258,11 +292,27 @@ const classSlice = createSlice({
                 state.loading = false;
                 state.error = action.payload;
             })
-            .addCase(setSelectedClass, (state, action) => {
-                if (action.payload) {
-                    state.groups = {}; // ✅ Reset groups to empty
+            .addCase(addClassMembers.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+              })
+              .addCase(addClassMembers.fulfilled, (state, action) => {
+                state.loading = false;
+                const { classId, members } = action.payload;
+              
+                const classIndex = state.classes.findIndex(c => c.id === classId);
+                if (classIndex !== -1) {
+                  if (!state.classes[classIndex].members) {
+                    state.classes[classIndex].members = [];
+                  }
+                  state.classes[classIndex].members.push(...members);
                 }
-            });
+                dispatch(UpdateSelectedClassMembers(members))
+              })
+              .addCase(addClassMembers.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
+              });
     }
 });
 

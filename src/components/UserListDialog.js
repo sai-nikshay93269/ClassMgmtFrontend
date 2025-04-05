@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Avatar,
   Box,
@@ -7,7 +7,6 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
   Divider,
   IconButton,
@@ -20,60 +19,31 @@ import {
   TableRow,
   Typography,
 } from "@mui/material";
-import AntSwitch from "./AntSwitch";
-import { faker } from "@faker-js/faker";
-import { useDispatch } from "react-redux";
-import { ToggleSidebar, UpdateSidebarType } from "../redux/slices/appSlice";
 import { useTheme } from "@mui/material/styles";
-import { Bell, CaretRight, Phone, Prohibit, Star, Trash, VideoCamera, X } from "phosphor-react";
+import { X } from "phosphor-react";
+import { useDispatch, useSelector } from "react-redux";
+import { addClassMembers } from "../redux/slices/classSlice";
 
-const UserListDialog = ({ open, handleClose }) => {
+const UserListDialog = ({ open, handleClose, students = [] }) => {
   const dispatch = useDispatch();
   const theme = useTheme();
 
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
+  const selectedClass = useSelector(state => state.app.selectedClass);
 
-  const users = [
-    {
-      id: "1",
-      username: "user1",
-      email: "user1@example.com",
-      userDetails: {
-        firstName: "Jane",
-        lastName: "Doe",
-        phoneNumber: "555-555-5556",
-        profilePicture: faker.image.avatar(),
-      },
-    },
-    {
-      id: "2",
-      username: "user2",
-      email: "user2@example.com",
-      userDetails: {
-        firstName: "Jane",
-        lastName: "Doe",
-        phoneNumber: "555-555-5556",
-        profilePicture: faker.image.avatar(),
-      },
-    },
-    {
-      id: "3",
-      username: "user3",
-      email: "user3@example.com",
-      userDetails: {
-        firstName: "Bob",
-        lastName: "Smith",
-        phoneNumber: "555-555-5557",
-        profilePicture: faker.image.avatar(),
-      },
-    },
-  ];
+
+  useEffect(() => {
+    if (!open) {
+      setSelectedUsers([]);
+      setSelectAll(false);
+    }
+  }, [open]);
 
   const handleSelectAllChange = (event) => {
     setSelectAll(event.target.checked);
     if (event.target.checked) {
-      setSelectedUsers(users.map((user) => user.id));
+      setSelectedUsers(students.map((user) => user.id));
     } else {
       setSelectedUsers([]);
     }
@@ -81,10 +51,9 @@ const UserListDialog = ({ open, handleClose }) => {
 
   const handleUserSelectChange = (event, userId) => {
     if (event.target.checked) {
-      setSelectedUsers([...selectedUsers, userId]);
+      setSelectedUsers((prev) => [...prev, userId]);
     } else {
-      setSelectedUsers(selectedUsers.filter((id) => id !== userId));
-      
+      setSelectedUsers((prev) => prev.filter((id) => id !== userId));
     }
   };
 
@@ -104,6 +73,7 @@ const UserListDialog = ({ open, handleClose }) => {
           </IconButton>
         </Stack>
       </DialogTitle>
+
       <DialogContent dividers>
         <Divider />
         <Box sx={{ mt: 2 }}>
@@ -114,7 +84,9 @@ const UserListDialog = ({ open, handleClose }) => {
                   <TableCell padding="checkbox">
                     <Checkbox
                       checked={selectAll}
-                      indeterminate={selectedUsers.length > 0 && selectedUsers.length < users.length}
+                      indeterminate={
+                        selectedUsers.length > 0 && selectedUsers.length < students.length
+                      }
                       onChange={handleSelectAllChange}
                     />
                   </TableCell>
@@ -126,7 +98,7 @@ const UserListDialog = ({ open, handleClose }) => {
                 </TableRow>
               </TableHead>
               <TableBody>
-                {users.map((user) => (
+                {students.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell padding="checkbox">
                       <Checkbox
@@ -136,27 +108,22 @@ const UserListDialog = ({ open, handleClose }) => {
                     </TableCell>
                     <TableCell>
                       <Avatar
-                        alt={user.userDetails.firstName}
-                        src={user.userDetails.profilePicture}
+                        alt={`${user.userDetails?.firstName}`}
+                        src={user.userDetails?.profilePicture}
                         sx={{ width: 56, height: 56 }}
                       />
                     </TableCell>
                     <TableCell>
                       <Typography variant="subtitle2">
-                        {user.userDetails.firstName} {user.userDetails.lastName}
+                        {user.userDetails?.firstName} {user.userDetails?.lastName}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {user.userDetails.phoneNumber}
+                        {user.userDetails?.phoneNumber}
                       </Typography>
                     </TableCell>
-                    <TableCell>
-                      <Typography variant="subtitle2">{user.username}</Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {user.email}
-                      </Typography>
-                    </TableCell>
+                    <TableCell>{user.username}</TableCell>
                     <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.userDetails.phoneNumber}</TableCell>
+                    <TableCell>{user.userDetails?.phoneNumber}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
@@ -164,11 +131,21 @@ const UserListDialog = ({ open, handleClose }) => {
           </TableContainer>
         </Box>
       </DialogContent>
+
       <DialogActions>
         <Button variant="outlined" color="primary" onClick={handleClose}>
           Cancel
         </Button>
-        <Button variant="contained" color="primary" onClick={handleClose}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => {
+            if (selectedUsers.length > 0 && selectedClass?.id) {
+              dispatch(addClassMembers({ classId: selectedClass.id, studentIds: selectedUsers }));
+            }
+            handleClose();
+          }}
+        >
           OK
         </Button>
       </DialogActions>

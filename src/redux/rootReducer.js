@@ -7,13 +7,20 @@ import classReducer from './slices/classSlice';
 // import notificationReducer from './slices/notificationSlice';
 // import evaluationReducer from './slices/evaluationSlice';
 
-const rootReducer = combineReducers({
+const combinedReducer = combineReducers({
     app: appReducer,
     auth: authReducer,
     class: classReducer
 });
 
-export {rootReducer};
+const rootReducer = (state, action) => {
+    if (action.type === 'RESET_STORE') {
+        state = undefined;
+    }
+    return combinedReducer(state, action);
+};
+
+export { rootReducer };
 
 /**
      

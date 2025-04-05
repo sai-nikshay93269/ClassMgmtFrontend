@@ -1,10 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { dispatch } from '../store';
 import axios from 'axios';
+import { persistor } from '../store';
 
 const initialState = {
     user: null,
     isAuthenticated: false,
+    students: [],
     token: sessionStorage.getItem('token') || null, // Get token from session
 };
 
@@ -22,7 +24,13 @@ const authSlice = createSlice({
             state.isAuthenticated = false;
             state.token = null;
             sessionStorage.removeItem('token'); // Remove token on logout
-        }
+        },
+        setUser(state, action) {
+            state.user = action.payload;
+        },
+        setStudentList(state, action) {
+            state.students = action.payload;
+        },
     }
 });
 
@@ -64,5 +72,26 @@ export function loginUser(user) {
 export function logoutUser() {
     return async () => {
         dispatch(authSlice.actions.logout());
+        await persistor.purge();
+        dispatch({ type: 'RESET_STORE' })
     };
 }
+
+export const fetchAllStudents = () => async (dispatch, getState) => {
+    const token = sessionStorage.getItem('token');
+
+    if (!token) return;
+
+    try {
+        const response = await axios.get("http://localhost:8080/v1/user/getAllStudents", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.status === 200) {
+            dispatch(authSlice.actions.setStudentList(response.data));
+        }
+    } catch (error) {
+        console.error("Error fetching students:", error);
+    }
+};
+

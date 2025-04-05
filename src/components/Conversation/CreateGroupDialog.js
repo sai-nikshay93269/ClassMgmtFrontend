@@ -51,7 +51,7 @@ const CreateGroupDialog = ({ open, handleClose, classId }) => {
         reset();
       }, 2000);
     } catch (error) {
-      setAlert({ open: true, message: "Failed to create group. Try again!", severity: "error" });
+      setAlert({ open: true, message: error, severity: "error" });
     }
   };
 
