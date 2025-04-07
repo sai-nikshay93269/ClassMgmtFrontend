@@ -66,7 +66,7 @@ const Sidebar = () => {
                   onClick={() => handleGroupSelect(group)} // ✅ Set selected group
                   selected={selectedGroup?.id === group.id}
                   sx={{
-                    pl: 1,
+                    pl: 1,  
                     py: 0.5,
                     cursor: "pointer",
                     borderRadius: "4px",

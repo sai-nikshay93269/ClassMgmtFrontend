@@ -1,7 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { dispatch } from '../store';
 import axios from 'axios';
-import { persistor } from '../store';
 
 const initialState = {
     user: null,
@@ -72,7 +71,6 @@ export function loginUser(user) {
 export function logoutUser() {
     return async () => {
         dispatch(authSlice.actions.logout());
-        await persistor.purge();
         dispatch({ type: 'RESET_STORE' })
     };
 }
