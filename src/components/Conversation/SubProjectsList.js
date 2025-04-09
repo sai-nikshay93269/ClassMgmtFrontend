@@ -8,6 +8,7 @@ import { ArrowForward, Edit, Save, Cancel } from '@mui/icons-material';
 import { useTheme } from '@mui/material/styles';
 import { format } from 'date-fns';
 import { SubProjectsList as subProjectsData } from '../../data/index';
+import { PencilSimple, FloppyDisk, ArrowCounterClockwise, X } from "phosphor-react";
 
 const SubProjectsList = ({ project, onViewChange }) => {
     const theme = useTheme();
@@ -143,80 +144,124 @@ const SubProjectsList = ({ project, onViewChange }) => {
                 </Typography>
             )}
 
-            {/* Popup Dialog */}
             <Dialog
                 open={Boolean(selectedSubProject)}
                 onClose={() => setSelectedSubProject(null)}
                 fullWidth
                 maxWidth="sm"
+                PaperProps={{
+                    sx: {
+                        borderRadius: 3,
+                        p: 3,
+                        backgroundColor: theme.palette.background.default,
+                    },
+                }}
             >
                 {selectedSubProject && (
                     <>
-                        <DialogTitle sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <Box
+                            sx={{
+                                display: "flex",
+                                justifyContent: "space-between",
+                                alignItems: "center",
+                                mb: 2,
+                                px: 1,
+                            }}
+                        >
                             {isEditing ? (
                                 <TextField
                                     fullWidth
-                                    variant="outlined"
+                                    variant="standard"
                                     name="title"
                                     value={editedSubProject.title}
                                     onChange={handleInputChange}
                                 />
                             ) : (
-                                selectedSubProject.title
+                                <Typography variant="h5" fontWeight={600} color="text.primary">
+                                    {selectedSubProject.title}
+                                </Typography>
                             )}
                             <IconButton onClick={() => setSelectedSubProject(null)}>
-                                <CloseIcon />
+                                <X size={20} />
                             </IconButton>
-                        </DialogTitle>
+                        </Box>
 
-                        <DialogContent sx={{ padding: "20px" }}>
-                            <Typography variant="body1" sx={{ fontWeight: "bold", marginBottom: "4px" }}>
-                                Description:
-                            </Typography>
-                            {isEditing ? (
-                                <TextField
-                                    fullWidth
-                                    multiline
-                                    rows={3}
-                                    variant="outlined"
-                                    name="description"
-                                    value={editedSubProject.description}
-                                    onChange={handleInputChange}
-                                />
-                            ) : (
-                                <Typography variant="body2">{selectedSubProject.description}</Typography>
-                            )}
+                        <DialogContent sx={{ px: 1 }}>
+                            {/* Description */}
+                            <Box sx={{ mb: 3 }}>
+                                <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
+                                    Description
+                                </Typography>
+                                {isEditing ? (
+                                    <TextField
+                                        fullWidth
+                                        multiline
+                                        rows={3}
+                                        variant="outlined"
+                                        name="description"
+                                        value={editedSubProject.description}
+                                        onChange={handleInputChange}
+                                    />
+                                ) : (
+                                    <Typography variant="body1" color="text.primary">
+                                        {selectedSubProject.description}
+                                    </Typography>
+                                )}
+                            </Box>
 
                             {/* Due Date */}
-                            <Typography variant="body2" sx={{ fontWeight: "bold", marginTop: "16px" }}>
-                                📅 Due Date:
-                            </Typography>
-                            {isEditing ? (
-                                <TextField
-                                    fullWidth
-                                    type="date"
-                                    variant="outlined"
-                                    name="dueDate"
-                                    value={editedSubProject.dueDate ? format(new Date(editedSubProject.dueDate), "yyyy-MM-dd") : ""}
-                                    onChange={handleInputChange}
-                                />
-                            ) : (
-                                <Typography variant="body2">{format(new Date(selectedSubProject.dueDate), "PPP")}</Typography>
-                            )}
+                            <Box>
+                                <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
+                                    Due Date
+                                </Typography>
+                                {isEditing ? (
+                                    <TextField
+                                        fullWidth
+                                        type="date"
+                                        variant="outlined"
+                                        name="dueDate"
+                                        value={
+                                            editedSubProject.dueDate
+                                                ? format(new Date(editedSubProject.dueDate), "yyyy-MM-dd")
+                                                : ""
+                                        }
+                                        onChange={handleInputChange}
+                                    />
+                                ) : (
+                                    <Typography variant="body1" color="text.primary">
+                                        {format(new Date(selectedSubProject.dueDate), "PPP")}
+                                    </Typography>
+                                )}
+                            </Box>
                         </DialogContent>
 
-                        <DialogActions>
+                        <DialogActions sx={{ px: 2, pt: 2 }}>
                             {isEditing ? (
                                 <>
-                                    <Button variant="contained" color="primary" onClick={handleSaveClick} startIcon={<Save />}>
+                                    <Button
+                                        variant="contained"
+                                        color="primary"
+                                        onClick={handleSaveClick}
+                                        startIcon={<FloppyDisk size={18} />}
+                                    >
                                         Save
                                     </Button>
-                                    <Button variant="outlined" color="secondary" onClick={handleCancelClick} startIcon={<Cancel />}>
+                                    <Button
+                                        variant="outlined"
+                                        color="secondary"
+                                        onClick={handleCancelClick}
+                                        startIcon={<ArrowCounterClockwise size={18} />}
+                                    >
                                         Cancel
                                     </Button>
                                 </>
                             ) : (
-                                <Button variant="contained" color="primary" onClick={handleEditClick} startIcon={<Edit />}>
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    onClick={handleEditClick}
+                                    startIcon={<PencilSimple size={18} />}
+                                >
                                     Edit
                                 </Button>
                             )}
