@@ -9,6 +9,9 @@ import { useSelector } from "react-redux";
 import SharedMessages from "../../components/SharedMessages";
 import StarredMessages from "../../components/StarredMessages";
 import { fetchClasses } from '../../redux/slices/classSlice';
+import unifiedSocket from "../../components/Conversation/UnifiedSocket";
+import { receiveMessage } from '../../redux/slices/chatSlice';
+import { subscribeRooms, unsubscribeAllRooms } from '../../utils/unifiedSocketManager';
 
 const GeneralApp = () => {
   const theme = useTheme();
@@ -16,8 +19,27 @@ const GeneralApp = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    dispatch(fetchClasses()).then((result) => console.log(result));
-  }, [dispatch]);
+    const dispatchFetch = async () => {
+      const res = await dispatch(fetchClasses());
+  
+      // Since your thunk returns the array of classes directly
+      const classes = res.payload || [];
+  
+      const roomIds = classes.map((cls) => `class-${cls.id}`);
+  
+      subscribeRooms(roomIds);
+  
+      unifiedSocket.onMessage((msg) => {
+        dispatch(receiveMessage(msg));
+      });
+    };
+  
+    dispatchFetch();
+  
+    return () => {
+      unsubscribeAllRooms();
+    };
+  }, []);
   
   return (
     <Stack direction='row' sx={{ width: '100%' }}>

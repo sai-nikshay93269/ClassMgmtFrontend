@@ -1,5 +1,6 @@
 import { faker } from "@faker-js/faker";
 import { useSelector } from "react-redux";
+import { format, isSameDay, parseISO } from "date-fns";
 import {
   ChatCircleDots,
   Gear,
@@ -167,6 +168,83 @@ const Chat_History = [
   },
 ];
 
+const useChatHistory = () => {
+  const allMessages = useSelector((state) => {
+    const selectedGroup = state.app.selectedGroup;
+    const selectedClass = state.app.selectedClass;
+    const roomId = selectedGroup
+      ? `group-${selectedGroup.id}`
+      : selectedClass
+      ? `class-${selectedClass.id}`
+      : null;
+
+    return state.chat.messages[roomId] || [];
+  });
+
+  const authUserId = useSelector((state) => state.auth.user.id);
+
+  const transformedMessages = [];
+
+  let lastMessageDate = null;
+
+  allMessages.forEach((chat) => {
+    const messageDate = parseISO(chat.timestamp);
+
+    if (!lastMessageDate || !isSameDay(lastMessageDate, messageDate)) {
+      transformedMessages.push({
+        type: "divider",
+        text: format(messageDate, "eeee, MMMM d"), // e.g. Monday, April 8
+      });
+      lastMessageDate = messageDate;
+    }
+
+    const isOutgoing = chat.senderId === authUserId;
+    const isIncoming = !isOutgoing;
+
+    const base = {
+      type: "msg",
+      message: chat.message,
+      incoming: isIncoming,
+      outgoing: isOutgoing,
+    };
+
+    switch (chat.subtype) {
+      case "img":
+        transformedMessages.push({
+          ...base,
+          subtype: "img",
+          img: chat.img || faker.image.abstract(),
+        });
+        break;
+      case "doc":
+        transformedMessages.push({
+          ...base,
+          subtype: "doc",
+          fileUrl: chat.fileUrl || faker.system.commonFileName(),
+        });
+        break;
+      case "link":
+        transformedMessages.push({
+          ...base,
+          subtype: "link",
+          preview: chat.preview || faker.image.business(),
+        });
+        break;
+      case "reply":
+        transformedMessages.push({
+          ...base,
+          subtype: "reply",
+          reply: chat.reply || "Replied message",
+        });
+        break;
+      default:
+        transformedMessages.push(base);
+    }
+  });
+
+  return transformedMessages;
+};
+
 const Message_options = [
   {
     title: "Reply",
@@ -246,6 +324,18 @@ const SHARED_DOCS = [
  
 ]
 
+const useProjectsList = () => {
+  const projects = useSelector((state) => state.project.projects); // or state.project.projectList depending on your slice
+  console.log("Projects are: "+ projects)
+  return projects.map((project) => ({
+    id: project.id,
+    classId: project.classId,
+    title: project.title,
+    description: project.description || "No description provided",
+    dueDate: project.dueDate
+  }));
+};
+
 const ProjectsList = [
   {
     id: "proj-1",
@@ -298,6 +388,19 @@ const ProjectsList = [
   },
 ];
 
+const useSubProjectsList = () => {
+  const subProjects = useSelector((state) => state.project.subProjects); // or state.project.projectList depending on your slice
+  console.log("SubProjects are: "+ subProjects)
+  return subProjects.map((subProject) => ({
+    id: subProject.id,
+    projectId: subProject.projectId,
+    groupId: subProject.groupId || "",
+    title: subProject.title,
+    description: subProject.description || "No description provided",
+    dueDate: subProject.dueDate
+  }));
+};
+
 const SubProjectsList = [
   {
     id: "subproj-1",
@@ -340,6 +443,21 @@ const SubProjectsList = [
     dueDate: "2025-04-12T23:59:00"
   }
 ];
+
+const useTasksList = () => {
+  const tasks = useSelector((state) => state.project.tasks); // Fetched via fetchTasks thunk
+
+  return tasks.map((task) => ({
+    id: task.id,
+    projectId: task.projectId,
+    subProjectId: task.subProjectId || null, // May be null for direct project-level tasks
+    assignedTo: task.assignedTo,
+    title: task.title,
+    description: task.description || "No description provided",
+    status: task.status,
+    dueDate: task.dueDate,
+  }));
+};
 
 
 const TasksList = [
@@ -400,5 +518,9 @@ export {
   SHARED_DOCS,
   SHARED_LINKS,
   MembersList,
-  NotificationsList
+  NotificationsList,
+  useChatHistory,
+  useProjectsList,
+  useSubProjectsList,
+  useTasksList
 };

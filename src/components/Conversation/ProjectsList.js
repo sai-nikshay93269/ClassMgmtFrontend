@@ -1,28 +1,132 @@
 import { useState } from 'react';
 import {
   Grid, Card, CardContent, Typography, Button, CardActions, Box, Tooltip,
-  Dialog, DialogTitle, DialogContent, IconButton, TextField, DialogActions
+  Dialog, DialogTitle, DialogContent, IconButton, TextField, DialogActions, Alert, Snackbar, Stack
 } from '@mui/material';
 import CloseIcon from "@mui/icons-material/Close";
 import { Edit, Save, Cancel } from '@mui/icons-material';
 import { format } from 'date-fns';
 import { useTheme } from '@mui/material/styles';
-import { ProjectsList as projects } from '../../data/index';
-import { X, PencilSimple, FloppyDisk, ArrowCounterClockwise } from "phosphor-react";
+import { useProjectsList } from '../../data/index';
+import { X, PencilSimple, FloppyDisk, ArrowCounterClockwise, Plus } from "phosphor-react";
+import { useDispatch, useSelector } from 'react-redux';
+import { createProject } from "../../redux/slices/projectSlice";
+import { RHFTextField } from '../hook-form';
+import FormProvider from '../hook-form/FormProvider';
+import * as Yup from 'yup';
+import { yupResolver } from '@hookform/resolvers/yup';
+import { useForm } from 'react-hook-form';
+import { updateProject } from "../../redux/slices/projectSlice";
+
 
 const ProjectsList = ({ onViewChange }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const cardMinHeight = "300px";
 
+  const projects = useProjectsList();
+
+  const selectedClass = useSelector(state => state.app.selectedClass);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
   const [editedProject, setEditedProject] = useState(null);
 
-  // Enable edit mode and copy project details
-  const handleEdit = () => {
-    setEditedProject({ ...selectedProject });
-    setIsEditing(true);
+  const { isLoading } = useSelector((state) => state.project); // Update with your slice
+
+  const [alert, setAlert] = useState({ open: false, message: '', severity: '' });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false); // ✅ Add this line
+  
+  // 🧪 Yup validation schema
+  const projectSchema = Yup.object().shape({
+    title: Yup.string().required('Project title is required'),
+    description: Yup.string().required('Description is required'),
+    dueDate: Yup.string().required('Due date is required'),
+  });
+
+  const methods = useForm({
+    resolver: yupResolver(projectSchema),
+    defaultValues: {
+      title: '',
+      description: '',
+      dueDate: '',
+    },
+  });
+
+  const { handleSubmit, formState: { errors } } = methods;
+
+  const onCreateProject = async (data) => {
+
+    setIsSubmitting(true);
+    const payload = {
+      classId: selectedClass.id,
+      ...data,  // Include other project data
+    };
+    dispatch(createProject(payload))
+      .then(() => {
+        setAlert({ open: true, message: 'Project created successfully!', severity: 'success' });
+        setTimeout(() => {
+          setAlert({ open: false, message: '', severity: '' });
+          setIsCreateDialogOpen(false);
+          setIsSubmitting(false);
+        }, 2000);
+      })
+      .catch((error) => {
+        console.error("Create Project Error:", error);
+        setAlert({ open: true, message: error.message || "Failed to create project.", severity: 'error' });
+        setIsSubmitting(false);
+      });
   };
+  // Enable edit mode and copy project details
+
+
+// Inside ProjectsList component
+
+const methodsEdit = useForm({
+  resolver: yupResolver(projectSchema),
+  defaultValues: {
+    title: '',
+    description: '',
+    dueDate: '',
+  },
+});
+const {
+  reset
+} = methodsEdit;
+
+const onUpdateProject = async (data) => {
+  const payload = {
+    ...data,
+    id: selectedProject.id,
+    classId: selectedClass.id, // 👈 very important for backend
+  };
+
+  setIsSubmitting(true);
+  dispatch(updateProject(payload))
+    .then(() => {
+      setAlert({ open: true, message: 'Project updated successfully!', severity: 'success' });
+      setTimeout(() => {
+        setSelectedProject(null);
+        setIsEditing(false);
+        setIsSubmitting(false);
+      }, 2000);
+    })
+    .catch((err) => {
+      setAlert({ open: true, message: err.message || 'Failed to update project.', severity: 'error' });
+      setIsSubmitting(false);
+    });
+};
+
+
+const handleEdit = () => {
+  setIsEditing(true);
+  reset({
+    title: selectedProject.title,
+    description: selectedProject.description,
+    dueDate: format(new Date(selectedProject.dueDate), 'yyyy-MM-dd\'T\'HH:mm'),
+  });
+};
+
 
   // Handle input change in form fields
   const handleInputChange = (e) => {
@@ -42,7 +146,34 @@ const ProjectsList = ({ onViewChange }) => {
   };
 
   return (
+
     <Grid container spacing={3} alignItems="stretch">
+      <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 4, mb: 2, width: "100%" }}>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => setIsCreateDialogOpen(true)}
+          startIcon={<Plus size={18} weight="bold" />}
+          sx={{
+            ml: 2,
+            textTransform: "none",
+            borderRadius: "12px",
+            boxShadow: 3,
+            fontWeight: 600,
+            px: 3,
+            py: 1,
+            backgroundColor: theme.palette.primary.main,
+            "&:hover": {
+              backgroundColor: theme.palette.primary.dark,
+              transform: "scale(1.03)",
+            },
+            transition: "all 0.2s ease-in-out",
+          }}
+        >
+          New Project
+        </Button>
+      </Box>
+
       <Grid container spacing={3}>
         {projects.length > 0 ? (
           projects.map((project) => (
@@ -153,9 +284,123 @@ const ProjectsList = ({ onViewChange }) => {
         )}
       </Grid>
 
+      {selectedProject && (
+  <Dialog
+    open={Boolean(selectedProject)}
+    onClose={() => {
+      setSelectedProject(null);
+      setIsEditing(false);
+    }}
+    fullWidth
+    maxWidth="sm"
+    PaperProps={{
+      sx: {
+        borderRadius: 3,
+        p: 3,
+        backgroundColor: theme.palette.background.default,
+      },
+    }}
+  >
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        mb: 2,
+        px: 1,
+      }}
+    >
+      <Typography variant="h5" fontWeight={600} color="text.primary">
+        {isEditing ? "Edit Project" : selectedProject.title}
+      </Typography>
+      <IconButton
+        onClick={() => {
+          setSelectedProject(null);
+          setIsEditing(false);
+        }}
+      >
+        <X size={20} />
+      </IconButton>
+    </Box>
+
+    {isEditing ? (
+      <FormProvider methods={methodsEdit} onSubmit={methodsEdit.handleSubmit(onUpdateProject)}>
+        <DialogContent>
+          <Stack spacing={3} sx={{ mt: 2 }}>
+            {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
+            <RHFTextField name="title" label="Project Title" />
+            <RHFTextField name="description" label="Description" multiline rows={4} />
+            <RHFTextField
+              name="dueDate"
+              label="Due Date & Time"
+              type="datetime-local"
+              InputLabelProps={{ shrink: true }}
+            />
+          </Stack>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 3, pb: 3 }}>
+          <Stack spacing={2} direction='row' alignItems='center' justifyContent='end'>
+            <Button onClick={() => setIsEditing(false)} startIcon={<ArrowCounterClockwise size={18} />}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="contained" disabled={isSubmitting} startIcon={<FloppyDisk size={18} />}>
+              Save Changes
+            </Button>
+          </Stack>
+        </DialogActions>
+      </FormProvider>
+    ) : (
+      <>
+        <DialogContent sx={{ px: 1 }}>
+          <Box sx={{ mb: 3 }}>
+            <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
+              Description
+            </Typography>
+            <Typography variant="body1" color="text.primary">
+              {selectedProject.description}
+            </Typography>
+          </Box>
+
+          <Box>
+            <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
+              Due Date
+            </Typography>
+            <Typography variant="body1" color="text.primary">
+              {format(new Date(selectedProject.dueDate), "PPP")}
+            </Typography>
+          </Box>
+        </DialogContent>
+
+        <DialogActions sx={{ px: 2, pt: 2 }}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={handleEdit}
+            startIcon={<PencilSimple size={18} />}
+          >
+            Edit
+          </Button>
+        </DialogActions>
+      </>
+    )}
+  </Dialog>
+)}
+
+      <Snackbar
+        open={alert.open}
+        anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+        autoHideDuration={4000}
+        onClose={() => setAlert({ ...alert, open: false })}
+      >
+        <Alert severity={alert.severity} onClose={() => setAlert({ ...alert, open: false })}>
+          {alert.message}
+        </Alert>
+      </Snackbar>
+
       <Dialog
-        open={Boolean(selectedProject)}
-        onClose={() => setSelectedProject(null)}
+        open={isCreateDialogOpen}
+        onClose={() => setIsCreateDialogOpen(false)}
         fullWidth
         maxWidth="sm"
         PaperProps={{
@@ -166,118 +411,50 @@ const ProjectsList = ({ onViewChange }) => {
           },
         }}
       >
-        {selectedProject && (
-          <>
-            <Box
-              sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-                px: 1,
-              }}
-            >
-              {isEditing ? (
-                <TextField
-                  fullWidth
-                  variant="standard"
-                  name="title"
-                  value={editedProject?.title || ""}
-                  onChange={handleInputChange}
-                />
-              ) : (
-                <Typography variant="h5" fontWeight={600} color="text.primary">
-                  {selectedProject.title}
-                </Typography>
-              )}
-              <IconButton onClick={() => setSelectedProject(null)}>
-                <X size={20} />
-              </IconButton>
-            </Box>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 2,
+            px: 1,
+          }}
+        >
+          <Typography variant="h5" fontWeight={600} color="text.primary">
+            Create New Project
+          </Typography>
+          <IconButton onClick={() => setIsCreateDialogOpen(false)}>
+            <X size={20} />
+          </IconButton>
+        </Box>
 
-            <DialogContent sx={{ px: 1 }}>
-              {/* Description */}
-              <Box sx={{ mb: 3 }}>
-                <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
-                  Description
-                </Typography>
-                {isEditing ? (
-                  <TextField
-                    fullWidth
-                    multiline
-                    rows={4}
-                    variant="outlined"
-                    name="description"
-                    value={editedProject?.description || ""}
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <Typography variant="body1" color="text.primary">
-                    {selectedProject.description}
-                  </Typography>
-                )}
-              </Box>
+        <FormProvider methods={methods} onSubmit={handleSubmit(onCreateProject)}>
+          <DialogContent>
+            <Stack spacing={3} sx={{ mt: 2 }}>
+              {!!errors.afterSubmit && <Alert severity="error">{errors.afterSubmit.message}</Alert>}
+              <RHFTextField name="title" label="Project Title" />
+              <RHFTextField name="description" label="Description" multiline rows={4} />
+              <RHFTextField
+                name="dueDate"
+                label="Due Date & Time"
+                type="datetime-local"
+                InputLabelProps={{ shrink: true }}
+              />
+            </Stack>
+          </DialogContent>
 
-              {/* Due Date */}
-              <Box>
-                <Typography variant="subtitle2" color="text.secondary" mb={0.5}>
-                  Due Date
-                </Typography>
-                {isEditing ? (
-                  <TextField
-                    fullWidth
-                    type="date"
-                    variant="outlined"
-                    name="dueDate"
-                    value={
-                      editedProject?.dueDate
-                        ? format(new Date(editedProject.dueDate), "yyyy-MM-dd")
-                        : ""
-                    }
-                    onChange={handleInputChange}
-                  />
-                ) : (
-                  <Typography variant="body1" color="text.primary">
-                    {format(new Date(selectedProject.dueDate), "PPP")}
-                  </Typography>
-                )}
-              </Box>
-            </DialogContent>
-
-            <DialogActions sx={{ px: 2, pt: 2 }}>
-              {isEditing ? (
-                <>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSave}
-                    startIcon={<FloppyDisk size={18} />}
-                  >
-                    Save
-                  </Button>
-                  <Button
-                    variant="outlined"
-                    color="secondary"
-                    onClick={handleCancel}
-                    startIcon={<ArrowCounterClockwise size={18} />}
-                  >
-                    Cancel
-                  </Button>
-                </>
-              ) : (
-                <Button
-                  variant="contained"
-                  color="primary"
-                  onClick={handleEdit}
-                  startIcon={<PencilSimple size={18} />}
-                >
-                  Edit
-                </Button>
-              )}
-            </DialogActions>
-          </>
-        )}
+          <DialogActions sx={{ px: 3, pb: 3 }}>
+            <Stack spacing={2} direction='row' alignItems='center' justifyContent='end'>
+              <Button onClick={() => setIsCreateDialogOpen(false)}>Cancel</Button>
+              <Button type="submit" variant="contained" disabled={isSubmitting || isLoading}>
+                Create Project
+              </Button>
+            </Stack>
+          </DialogActions>
+        </FormProvider>
       </Dialog>
+
+
     </Grid>
   );
 };

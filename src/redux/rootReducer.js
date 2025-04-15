@@ -2,15 +2,18 @@ import { combineReducers } from 'redux';
 import appReducer from './slices/appSlice';
 import authReducer from './slices/authSlice';
 import classReducer from './slices/classSlice';
-// import projectReducer from './slices/projectSlice';
-// import chatReducer from './slices/chatSlice';
+import chatReducer from './slices/chatSlice';
+ import projectReducer from './slices/projectSlice';
+// 
 // import notificationReducer from './slices/notificationSlice';
 // import evaluationReducer from './slices/evaluationSlice';
 
 const combinedReducer = combineReducers({
     app: appReducer,
     auth: authReducer,
-    class: classReducer
+    class: classReducer,
+    chat: chatReducer,
+    project: projectReducer
 });
 
 const rootReducer = (state, action) => {

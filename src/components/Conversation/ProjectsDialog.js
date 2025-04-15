@@ -12,9 +12,12 @@ import ProjectsList from './ProjectsList';
 import SubProjectsList from './SubProjectsList';
 import TasksList from './TasksList';
 import TaskDetails from './TaskDetails';
+import { useDispatch } from 'react-redux';
+import { fetchSubProjectsByProjectId, fetchTasks } from '../../redux/slices/projectSlice';
 
 const ProjectsDialog = ({ open, handleClose }) => {
   const theme = useTheme();
+  const dispatch = useDispatch();
   const [view, setView] = useState("projects");
   const [viewStack, setViewStack] = useState([]);
 
@@ -30,8 +33,20 @@ const ProjectsDialog = ({ open, handleClose }) => {
     setViewAllTasks(viewAll);
     setSelectedTask(task);
     setView(newView);
+  
+    if (newView === 'subprojects' && project) {
+      dispatch(fetchSubProjectsByProjectId(project));
+    }
+  
+    if (newView === 'tasks') {
+      if (subProject) {
+        dispatch(fetchTasks({ subProjectId: subProject.id }));
+      } else if (project) {
+        dispatch(fetchTasks({ projectId: project.id }));
+      }
+    }
   };
-
+  
   const handleBack = () => {
     setViewStack((prev) => {
       const updatedStack = [...prev];
@@ -60,6 +75,7 @@ const ProjectsDialog = ({ open, handleClose }) => {
           textAlign: 'center',
           display: 'flex',
           alignItems: 'center',
+          textTransform: "uppercase",
           gap: 1,
           color: theme.palette.primary.main,
         }}
@@ -71,7 +87,7 @@ const ProjectsDialog = ({ open, handleClose }) => {
         )}
         <Typography variant="h6" sx={{ flexGrow: 1, textAlign: 'center' }}>
           {view === "projects"
-            ? "Sample Class - Projects"
+            ? "Projects"
             : view === "taskdetails"
             ? selectedTask?.title
             : selectedProject?.title || ""}

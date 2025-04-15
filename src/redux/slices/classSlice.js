@@ -15,7 +15,7 @@ export const fetchClasses = createAsyncThunk(
                 return rejectWithValue("Authorization token missing");
             }
 
-            const response = await fetch('http://localhost:8080/v1/classes-service/classes/getAll', {
+            const response = await fetch('http://localhost:8080/v1/classes-service/classes/my-classes', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`
@@ -141,7 +141,7 @@ export const fetchGroups = createAsyncThunk(
                 return rejectWithValue("No class selected");
             }
 
-            const response = await fetch(`http://localhost:8080/v1/classes-service/classes/${selectedClass.id}/groups`, {
+            const response = await fetch(`http://localhost:8080/v1/classes-service/classes/${selectedClass.id}/my-groups`, {
                 method: 'GET',
                 headers: {
                     'Authorization': `Bearer ${token}`

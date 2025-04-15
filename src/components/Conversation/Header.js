@@ -14,7 +14,8 @@ import {
   import StyledBadge from "../StyledBadge";
   import { ToggleSidebar } from "../../redux/slices/appSlice";
   import ProjectsDialog from "./ProjectsDialog";
-  
+  import { fetchProjectsByClass, fetchSubProjectsByClass } from "../../redux/slices/projectSlice";
+
   const Header = () => {
     const dispatch = useDispatch();
     const theme = useTheme();
@@ -74,14 +75,19 @@ import {
   
           {/* Right Section */}
           <Stack direction="row" alignItems="center" spacing={3}>
-            <Button
-              variant="contained"
-              startIcon={<FolderOpen />}
-              onClick={() => setOpenProjects(true)}
-              sx={{ color: "white", fontWeight: "bold" }}
-            >
-              Projects
-            </Button>
+          <Button
+            variant="contained"
+            startIcon={<FolderOpen />}
+            onClick={() => {
+              setOpenProjects(true);
+              if (selectedClass?.id) {
+                dispatch(fetchProjectsByClass(selectedClass.id)); 
+              }
+            }}
+            sx={{ color: "white", fontWeight: "bold" }}
+          >
+            Projects
+          </Button>
           </Stack>
         </Stack>
   
