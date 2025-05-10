@@ -9,6 +9,7 @@ import { useSelector } from "react-redux";
 import SharedMessages from "../../components/SharedMessages";
 import StarredMessages from "../../components/StarredMessages";
 import { fetchClasses } from '../../redux/slices/classSlice';
+import { fetchAllUsers } from '../../redux/slices/authSlice';
 import unifiedSocket from "../../components/Conversation/UnifiedSocket";
 import { receiveMessage } from '../../redux/slices/chatSlice';
 import { subscribeRooms, unsubscribeAllRooms } from '../../utils/unifiedSocketManager';
@@ -21,6 +22,7 @@ const GeneralApp = () => {
   useEffect(() => {
     const dispatchFetch = async () => {
       const res = await dispatch(fetchClasses());
+      await dispatch(fetchAllUsers());
   
       // Since your thunk returns the array of classes directly
       const classes = res.payload || [];

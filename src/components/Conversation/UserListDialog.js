@@ -22,17 +22,16 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { X } from "phosphor-react";
 import { useDispatch, useSelector } from "react-redux";
-import { addClassMembers } from "../redux/slices/classSlice";
-import { addGroupMembers } from "../redux/slices/classSlice";
 
-const UserListDialog = ({ open, handleClose, students = [] }) => {
+const UserListDialog = ({ open, handleClose, students = [], onConfirm }) => {
+
   const dispatch = useDispatch();
   const theme = useTheme();
 
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [selectAll, setSelectAll] = useState(false);
   const selectedClass = useSelector(state => state.app.selectedClass);
-  const selectedGroup = useSelector(state => state.app.selectedGroup);
+
 
   useEffect(() => {
     if (!open) {
@@ -138,21 +137,16 @@ const UserListDialog = ({ open, handleClose, students = [] }) => {
           Cancel
         </Button>
         <Button
-          variant="contained"
-          color="primary"
-          onClick={() => {
-            if (selectedUsers.length > 0 && selectedGroup?.id) {
-              dispatch(addGroupMembers({ groupId: selectedGroup.id, studentIds: selectedUsers }));
-            }
-           else  if (selectedUsers.length > 0 && selectedClass?.id) {
-              dispatch(addClassMembers({ classId: selectedClass.id, studentIds: selectedUsers }));
-            }
-            
-            handleClose();
-          }}
-        >
-          OK
-        </Button>
+  variant="contained"
+  color="primary"
+  onClick={() => {
+    onConfirm(selectedUsers); // pass selected users to parent
+    handleClose();
+  }}
+>
+  OK
+</Button>
+
       </DialogActions>
     </Dialog>
   );

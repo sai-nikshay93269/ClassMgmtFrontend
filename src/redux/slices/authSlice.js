@@ -6,6 +6,7 @@ const initialState = {
     user: null,
     isAuthenticated: false,
     students: [],
+    users:[],
     token: sessionStorage.getItem('token') || null, // Get token from session
 };
 
@@ -30,6 +31,10 @@ const authSlice = createSlice({
         setStudentList(state, action) {
             state.students = action.payload;
         },
+        setUsersList(state, action) {
+            state.users = action.payload;
+        },
+    
     }
 });
 
@@ -87,6 +92,24 @@ export const fetchAllStudents = () => async (dispatch, getState) => {
 
         if (response.status === 200) {
             dispatch(authSlice.actions.setStudentList(response.data));
+        }
+    } catch (error) {
+        console.error("Error fetching students:", error);
+    }
+};
+
+export const fetchAllUsers = () => async (dispatch, getState) => {
+    const token = sessionStorage.getItem('token');
+
+    if (!token) return;
+
+    try {
+        const response = await axios.get("http://localhost:8080/v1/user/getAll", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (response.status === 200) {
+            dispatch(authSlice.actions.setUsersList(response.data));
         }
     } catch (error) {
         console.error("Error fetching students:", error);

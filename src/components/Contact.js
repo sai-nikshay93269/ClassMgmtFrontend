@@ -33,6 +33,7 @@ const Transition = React.forwardRef(function Transition(props, ref) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
 
+
 const BlockDialog = ({ open, handleClose }) => {
   return (
     <Dialog
@@ -92,6 +93,8 @@ const Contact = () => {
   const [openBlock, setOpenBlock] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openAddMembers, setOpenAddMembers] = useState(false);
+
+  const userRole = useSelector((state) => state.auth.user.role);
 
   const handleCloseBlock = () => setOpenBlock(false);
   const handleCloseDelete = () => setOpenDelete(false);
@@ -175,7 +178,7 @@ const Contact = () => {
 
           <Divider />
 
-          <Stack direction="row" spacing={0.5}>
+          {userRole === 'TEACHER' && <Stack direction="row" spacing={0.5}>
             <Typography
               variant="body2"
               sx={{
@@ -190,7 +193,7 @@ const Contact = () => {
             >
               Add new {contextName} members?
             </Typography>
-          </Stack>
+          </Stack>}
 
           <Stack
             direction="row"
@@ -238,7 +241,7 @@ const Contact = () => {
 
           <Divider />
 
-          <Stack
+          {/* <Stack
             direction="row"
             alignItems="center"
             justifyContent="space-between"
@@ -248,20 +251,12 @@ const Contact = () => {
               <Typography variant="subtitle2">Mute Notifications</Typography>
             </Stack>
             <AntSwitch />
-          </Stack>
+          </Stack> */}
 
-          <Divider />
+          {/* <Divider /> */}
 
-          {!selectedGroup && selectedClass && (<>
-            <Typography variant="subtitle2">Groups in this class</Typography>
-            <Stack spacing={2}> {(classState.groups[selectedClass.id] || []).map((group) => (<Stack direction="row" spacing={2} alignItems="center" key={group.id} >
-              <Avatar src={selectedClass?.img || ""} alt={group.name} />
-              <Stack spacing={0.5}>
-                <Typography variant="subtitle2">{group.name}</Typography>
-                <Typography variant="caption"> {/* Placeholder: Replace with actual group members */} Pavithra, You </Typography>
-              </Stack>
-            </Stack>))} {(!classState.groups[selectedClass.id] || classState.groups[selectedClass.id]?.length === 0) && (<Typography variant="body2">No groups found for this class.</Typography>)} </Stack> </>)}
 
+{/* 
           <Stack direction="row" alignItems="center" spacing={2}>
             <Button
               onClick={() => setOpenDelete(true)}
@@ -271,7 +266,7 @@ const Contact = () => {
             >
               Delete {contextName}
             </Button>
-          </Stack>
+          </Stack> */}
         </Stack>
       </Stack>
 

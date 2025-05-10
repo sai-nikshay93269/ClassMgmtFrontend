@@ -3,7 +3,7 @@ import { CheckCircle } from 'phosphor-react';
 import { useTheme } from "@mui/material/styles";
 import { formatDistanceToNow } from "date-fns";
 
-const NotificationElement = ({ id, userId, classId, message, readStatus, creationTimestamp }) => {
+const NotificationElement = ({ id, userId, classId, message, readStatus, creationTimestamp, classInfo }) => {
   const theme = useTheme();
 
   return (
@@ -19,7 +19,17 @@ const NotificationElement = ({ id, userId, classId, message, readStatus, creatio
       }}
     >
       <Stack spacing={1}>
+        {/* Notification message */}
         <Typography variant='subtitle2'>{message}</Typography>
+
+        {/* Class info (if available) */}
+        {classInfo && (
+          <Typography variant='caption' color='textSecondary'>
+            From class: <strong>{classInfo.name}</strong> (ID: {classInfo.id})
+          </Typography>
+        )}
+
+        {/* Timestamp and read status */}
         <Stack direction={'row'} alignItems={'center'} spacing={1}>
           <Typography variant='caption' color='textSecondary'>
             {formatDistanceToNow(new Date(creationTimestamp), { addSuffix: true })}

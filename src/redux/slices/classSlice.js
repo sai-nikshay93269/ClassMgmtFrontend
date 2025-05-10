@@ -193,6 +193,42 @@ export const addClassMembers = createAsyncThunk(
       }
     }
   );
+
+  export const addGroupMembers = createAsyncThunk(
+    'class/addGroupMembers',
+    async ({ groupId, studentIds }, { getState, rejectWithValue }) => {
+      try {
+        const { auth } = getState();
+        const token = auth.token;
+  
+        if (!token) {
+          console.error("Authorization token missing");
+          return rejectWithValue("Authorization token missing");
+        }
+  
+        const response = await fetch(`http://localhost:8080/v1/classes-service/groups/${groupId}/members`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ studentIds })
+        });
+  
+        const responseData = await response.json();
+  
+        if (!response.ok) {
+          return rejectWithValue(responseData.error || "Failed to add group members");
+        }
+  
+        return { groupId, members: responseData }; // assuming responseData is the added GroupMembersDto[]
+      } catch (error) {
+        console.error("Error adding group members:", error);
+        return rejectWithValue(error.message);
+      }
+    }
+  );
+  
              
 
 // ✅ Create slice with `extraReducers` for async handling
@@ -312,7 +348,32 @@ const classSlice = createSlice({
               .addCase(addClassMembers.rejected, (state, action) => {
                 state.loading = false;
                 state.error = action.payload;
+              })
+              .addCase(addGroupMembers.pending, (state) => {
+                state.loading = true;
+                state.error = null;
+              })
+              .addCase(addGroupMembers.fulfilled, (state, action) => {
+                state.loading = false;
+                const { groupId, members } = action.payload;
+              
+                // Optionally store group members in the state
+                if (!state.groups[groupId]) {
+                  state.groups[groupId] = [];
+                }
+              
+                // Optionally track members within a group object if desired
+                if (!state.groups[groupId].members) {
+                  state.groups[groupId].members = [];
+                }
+              
+                state.groups[groupId].members.push(...members);
+              })
+              .addCase(addGroupMembers.rejected, (state, action) => {
+                state.loading = false;
+                state.error = action.payload;
               });
+              
     }
 });
 

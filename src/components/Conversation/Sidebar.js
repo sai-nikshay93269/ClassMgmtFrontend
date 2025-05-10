@@ -38,6 +38,7 @@ const Sidebar = () => {
   const voice = useSelector((state) => state.chat.voice);
 
   const user = useSelector((state) => state.auth.user);
+  const userRole = useSelector((state) => state.auth.user.role);
 
   const [open, setOpen] = useState(false);
 
@@ -145,13 +146,13 @@ useEffect(() => {
           <Typography variant="subtitle2" sx={{ fontSize: "12px", fontWeight: 600 }}>
             Groups
           </Typography>
-          <IconButton
+          {userRole === 'TEACHER' && <IconButton
             size="small"
             onClick={() => setOpen(true)}
             sx={{ color: "#747f8d", "&:hover": { color: "#2e3338" } }}
           >
             <Add fontSize="small" />
-          </IconButton>
+          </IconButton>}
         </Box>
 
         <Box sx={{ flex: 1, overflowY: "auto" }} className="scrollbar">

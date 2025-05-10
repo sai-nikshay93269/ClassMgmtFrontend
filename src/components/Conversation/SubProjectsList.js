@@ -18,11 +18,14 @@ import { useDispatch } from 'react-redux';
 import { createSubProject, updateSubProject } from "../../redux/slices/projectSlice";
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+import { useSelector } from "react-redux";
 
 const SubProjectsList = ({ project, onViewChange }) => {
     const theme = useTheme();
     const subprojects = subProjectsData();
     const cardMinHeight = "240px";
+
+    const userRole = useSelector((state) => state.auth.user.role);
 
     const [selectedSubProject, setSelectedSubProject] = useState(null);
     const [isEditing, setIsEditing] = useState(false);
@@ -150,7 +153,7 @@ const SubProjectsList = ({ project, onViewChange }) => {
 
     return (
         <Grid container spacing={3} alignItems="stretch">
-            <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 4, mb: 2, width: "100%" }}>
+            {userRole === 'TEACHER' && <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 4, mb: 2, width: "100%" }}>
                 <Button
                     variant="contained"
                     color="primary"
@@ -174,7 +177,7 @@ const SubProjectsList = ({ project, onViewChange }) => {
                 >
                     New Subproject
                 </Button>
-            </Box>
+            </Box>}
             {subprojects.length > 0 ? (
                 subprojects.map((subproject) => (
                     <Grid item xs={12} sm={6} md={4} key={subproject.id}>
@@ -361,7 +364,7 @@ const SubProjectsList = ({ project, onViewChange }) => {
                                 </Box>
                             </DialogContent>
 
-                            <DialogActions sx={{ px: 2, pt: 2 }}>
+                            {userRole === 'TEACHER' &&  <DialogActions sx={{ px: 2, pt: 2 }}>
                                 <Button
                                     variant="contained"
                                     color="primary"
@@ -370,7 +373,7 @@ const SubProjectsList = ({ project, onViewChange }) => {
                                 >
                                     Edit
                                 </Button>
-                            </DialogActions>
+                            </DialogActions>}
                         </>
                     )}
                 </Dialog>

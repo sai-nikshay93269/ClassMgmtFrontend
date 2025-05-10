@@ -189,9 +189,9 @@ const useChatHistory = () => {
 
   allMessages.forEach((chat) => {
     const messageDate = parseISO(chat.timestamp);
-
     if (!lastMessageDate || !isSameDay(lastMessageDate, messageDate)) {
       transformedMessages.push({
+        
         type: "divider",
         text: format(messageDate, "eeee, MMMM d"), // e.g. Monday, April 8
       });
@@ -206,6 +206,7 @@ const useChatHistory = () => {
       message: chat.message,
       incoming: isIncoming,
       outgoing: isOutgoing,
+      senderId: chat.senderId,
     };
 
     switch (chat.subtype) {
@@ -504,6 +505,25 @@ const NotificationsList = () => {
   }));
 };
 
+const useNotificationsList = ({ filter = 'ALL' } = {}) => {
+  const notifications = useSelector((state) => state.notification.notifications);
+
+  return notifications
+    .map((n) => ({
+      id: n.id,
+      userId: n.userId,
+      classId: n.classId || null,
+      message: n.message || "No message",
+      creationTimestamp: n.creationTimestamp,
+      readStatus: n.readStatus || "UNREAD",
+    }))
+    .filter((n) => {
+      if (filter === 'READ') return n.readStatus === 'READ';
+      if (filter === 'UNREAD') return n.readStatus === 'UNREAD';
+      return true;
+    });
+};
+
 
 export {
   ProjectsList,
@@ -518,7 +538,7 @@ export {
   SHARED_DOCS,
   SHARED_LINKS,
   MembersList,
-  NotificationsList,
+  useNotificationsList,
   useChatHistory,
   useProjectsList,
   useSubProjectsList,

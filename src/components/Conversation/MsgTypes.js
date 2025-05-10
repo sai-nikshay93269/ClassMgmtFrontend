@@ -3,6 +3,7 @@ import { useTheme } from '@mui/material/styles'
 import { DotsThreeVertical, DownloadSimple, Image } from 'phosphor-react';
 import React from 'react';
 import {Message_options} from '../../data'
+import { useSelector } from 'react-redux';
 
 const DocMsg = ({el,menu}) => {
     const theme = useTheme();
@@ -107,22 +108,58 @@ const MediaMsg = ({el,menu}) => {
   )
 }
 
-const TextMsg = ({el,menu}) => {
+const TextMsg = ({ el, menu }) => {
     const theme = useTheme();
+
+  // Get the list of users from the auth slice
+  const users = useSelector((state) => state.auth?.users || []);
+
+  // Find the user object matching the senderId
+  const senderUser = users.find((u) => u.id === el.senderId);
+
+  // Fallback to senderId if username not found
+  const senderName = senderUser?.username || el.senderId;
     return (
-        <Stack direction='row' justifyContent={el.incoming ? 'start' : 'end'}>
-            <Box p={1.5} sx={{
-                backgroundColor: el.incoming ? theme.palette.background.default :
-                    theme.palette.primary.main, borderRadius: 1.5, width: 'max-content'
-            }}>
-                <Typography variant='body2' color={el.incoming ? theme.palette.text : '#fff'}>
-                    {el.message}
-                </Typography>
+      <Stack direction="row" justifyContent={el.incoming ? 'start' : 'end'}>
+        <Stack spacing={0.5} alignItems={el.incoming ? 'flex-start' : 'flex-end'}>
+          {/* Sender ID on top */}
+          <Typography
+            variant="caption"
+            color="text.secondary"
+            sx={{ fontSize: 12 }}
+          >
+            {senderName}
+          </Typography>
+  
+          {/* Bubble + menu aligned horizontally */}
+          <Stack direction="row" alignItems="flex-start" spacing={1}>
+            <Box
+              p={1.5}
+              sx={{
+                backgroundColor: el.incoming
+                  ? theme.palette.background.default
+                  : theme.palette.primary.main,
+                borderRadius: 1.5,
+                maxWidth: '100%',
+                wordBreak: 'break-word',
+                whiteSpace: 'pre-wrap',
+              }}
+            >
+              <Typography
+                variant="body2"
+                color={el.incoming ? theme.palette.text : '#fff'}
+              >
+                {el.message}
+              </Typography>
             </Box>
-            {menu && <MessageOptions/>}
+  
+            {menu && <MessageOptions />}
+          </Stack>
         </Stack>
-    )
-}
+      </Stack>
+    );
+  };
+  
 
 const TimeLine = ({ el }) => {
     const theme = useTheme();

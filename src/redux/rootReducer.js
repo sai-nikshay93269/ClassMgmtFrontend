@@ -5,7 +5,7 @@ import classReducer from './slices/classSlice';
 import chatReducer from './slices/chatSlice';
  import projectReducer from './slices/projectSlice';
 // 
-// import notificationReducer from './slices/notificationSlice';
+ import notificationReducer from './slices/notificationSlice';
 // import evaluationReducer from './slices/evaluationSlice';
 
 const combinedReducer = combineReducers({
@@ -13,7 +13,8 @@ const combinedReducer = combineReducers({
     auth: authReducer,
     class: classReducer,
     chat: chatReducer,
-    project: projectReducer
+    project: projectReducer,
+    notification: notificationReducer
 });
 
 const rootReducer = (state, action) => {

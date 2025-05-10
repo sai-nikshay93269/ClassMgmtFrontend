@@ -16,6 +16,7 @@ const CreateClassDialog = ({ open, handleClose }) => {
 
   const [alert, setAlert] = useState({ open: false, message: '', severity: '' });
   const [isSubmitting, setIsSubmitting] = useState(false); // ✅ State to handle button disabling
+  const userRole = useSelector((state) => state.auth.user.role);
 
   // Validation Schema
   const classSchema = Yup.object().shape({

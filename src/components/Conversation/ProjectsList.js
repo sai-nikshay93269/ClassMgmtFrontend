@@ -37,6 +37,8 @@ const ProjectsList = ({ onViewChange }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false); // ✅ Add this line
   
+  const userRole = useSelector((state) => state.auth.user.role);
+
   // 🧪 Yup validation schema
   const projectSchema = Yup.object().shape({
     title: Yup.string().required('Project title is required'),
@@ -148,7 +150,7 @@ const handleEdit = () => {
   return (
 
     <Grid container spacing={3} alignItems="stretch">
-      <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 4, mb: 2, width: "100%" }}>
+      {userRole === 'TEACHER' && <Box sx={{ display: "flex", justifyContent: "flex-start", mt: 4, mb: 2, width: "100%" }}>
         <Button
           variant="contained"
           color="primary"
@@ -172,7 +174,7 @@ const handleEdit = () => {
         >
           New Project
         </Button>
-      </Box>
+      </Box>}
 
       <Grid container spacing={3}>
         {projects.length > 0 ? (
@@ -372,7 +374,7 @@ const handleEdit = () => {
           </Box>
         </DialogContent>
 
-        <DialogActions sx={{ px: 2, pt: 2 }}>
+        {userRole === 'TEACHER' && <DialogActions sx={{ px: 2, pt: 2 }}>
           <Button
             variant="contained"
             color="primary"
@@ -381,7 +383,7 @@ const handleEdit = () => {
           >
             Edit
           </Button>
-        </DialogActions>
+        </DialogActions>}
       </>
     )}
   </Dialog>
